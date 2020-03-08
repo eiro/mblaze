@@ -12,9 +12,7 @@
 #include <unistd.h>
 
 #include "blaze822.h"
-
-#define lc(c) ((c) | 0x20)
-#define uc(c) ((c) & 0xdf)
+#include "blaze822_priv.h"
 
 /*
 
@@ -147,12 +145,8 @@ listdir(char *dir)
 
 		for (bpos = 0; bpos < nread; bpos += d->d_reclen) {
 			d = (struct linux_dirent64 *)(buf + bpos);
-			if  (  d->d_type != DT_REG
-				&& d->d_type != DT_LNK
-				&& d->d_type != DT_UNKNOWN
-			) continue;
-			if (d->d_name[0] == '.')
-				continue;
+			if (IS_LEGIT_DT(d->d_type)) continue;
+			if (d->d_name[0] == '.')    continue;
 			list(dir, d->d_name);
 		}
 	}
